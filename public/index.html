@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111318" />
+  <title>WebTalk</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23f2a65a'/%3E%3Cpath d='M8 11h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zm15 3 4-2.5v9L23 18z' fill='%23111318'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <!-- Lobby -->
+  <main id="lobby" class="lobby">
+    <section class="lobby-card">
+      <header class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>WebTalk</h1>
+      </header>
+      <p class="tagline">Talk, see and chat — right in the browser. No accounts, no installs.</p>
+
+      <div class="preview">
+        <video id="preview-video" autoplay playsinline muted></video>
+        <div id="preview-placeholder" class="placeholder">
+          <span class="avatar" id="preview-avatar">?</span>
+          <span class="placeholder-text" id="preview-status">Camera is off</span>
+        </div>
+        <div class="preview-controls">
+          <button type="button" class="ctrl" id="preview-mic" aria-pressed="true" title="Toggle microphone">
+            <svg viewBox="0 0 24 24" class="icon on"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12z"/></svg>
+            <svg viewBox="0 0 24 24" class="icon off"><path d="M19 12h-2c0 .74-.16 1.43-.43 2.06l1.5 1.5A6.9 6.9 0 0 0 19 12zm-4 .17V6a3 3 0 0 0-5.94-.6zM4.27 3 3 4.27l6 6V12a3 3 0 0 0 4.48 2.6l1.5 1.5A5 5 0 0 1 7 12H5a7 7 0 0 0 6 6.92V21h2v-2.08a6.9 6.9 0 0 0 3.32-1.33L19.73 21 21 19.73z"/></svg>
+          </button>
+          <button type="button" class="ctrl" id="preview-cam" aria-pressed="true" title="Toggle camera">
+            <svg viewBox="0 0 24 24" class="icon on"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11z"/></svg>
+            <svg viewBox="0 0 24 24" class="icon off"><path d="M21 6.5l-4 4V7a1 1 0 0 0-1-1H9.82L21 17.18zM3.27 2 2 3.27 4.73 6H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12c.21 0 .39-.08.54-.18L19.73 21 21 19.73z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <form id="join-form" class="join-form" autocomplete="off">
+        <label>
+          <span>Your name</span>
+          <input id="name-input" name="name" maxlength="32" placeholder="e.g. Sami" required />
+        </label>
+        <label>
+          <span>Room</span>
+          <div class="room-row">
+            <input id="room-input" name="room" maxlength="64" pattern="[A-Za-z0-9_\-]+" placeholder="room-name" required />
+            <button type="button" class="ghost" id="random-room" title="Generate a room name">Random</button>
+          </div>
+        </label>
+        <p class="error" id="join-error" role="alert" hidden></p>
+        <button type="submit" class="primary" id="join-btn">Join room</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- Call -->
+  <main id="room" class="room" hidden>
+    <header class="topbar">
+      <div class="room-info">
+        <span class="brand-mark small" aria-hidden="true"></span>
+        <strong id="room-title">room</strong>
+        <span class="count" id="peer-count">1</span>
+      </div>
+      <button type="button" class="ghost" id="copy-link" title="Copy invite link">Copy invite link</button>
+    </header>
+
+    <div class="stage">
+      <section class="grid" id="grid" aria-label="Participants"></section>
+
+      <aside class="chat" id="chat" aria-label="Chat">
+        <header class="chat-head">
+          <h2>Chat</h2>
+          <button type="button" class="icon-btn" id="close-chat" title="Close chat" aria-label="Close chat">✕</button>
+        </header>
+        <ol class="messages" id="messages"></ol>
+        <form class="composer" id="chat-form" autocomplete="off">
+          <textarea id="chat-input" rows="1" maxlength="2000" placeholder="Write a message…"></textarea>
+          <button type="submit" class="primary small" id="send-btn">Send</button>
+        </form>
+      </aside>
+    </div>
+
+    <nav class="controls" aria-label="Call controls">
+      <button type="button" class="ctrl" id="mic-btn" aria-pressed="true" title="Microphone (Ctrl/⌘+D)">
+        <svg viewBox="0 0 24 24" class="icon on"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12z"/></svg>
+        <svg viewBox="0 0 24 24" class="icon off"><path d="M19 12h-2c0 .74-.16 1.43-.43 2.06l1.5 1.5A6.9 6.9 0 0 0 19 12zm-4 .17V6a3 3 0 0 0-5.94-.6zM4.27 3 3 4.27l6 6V12a3 3 0 0 0 4.48 2.6l1.5 1.5A5 5 0 0 1 7 12H5a7 7 0 0 0 6 6.92V21h2v-2.08a6.9 6.9 0 0 0 3.32-1.33L19.73 21 21 19.73z"/></svg>
+      </button>
+      <button type="button" class="ctrl" id="cam-btn" aria-pressed="true" title="Camera (Ctrl/⌘+E)">
+        <svg viewBox="0 0 24 24" class="icon on"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11z"/></svg>
+        <svg viewBox="0 0 24 24" class="icon off"><path d="M21 6.5l-4 4V7a1 1 0 0 0-1-1H9.82L21 17.18zM3.27 2 2 3.27 4.73 6H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12c.21 0 .39-.08.54-.18L19.73 21 21 19.73z"/></svg>
+      </button>
+      <button type="button" class="ctrl" id="screen-btn" aria-pressed="false" title="Share screen">
+        <svg viewBox="0 0 24 24" class="icon"><path d="M20 18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2H0v2h24v-2zM4 6h16v10H4zm7 8V10.8L9.4 12.4 8 11l4-4 4 4-1.4 1.4-1.6-1.6V14z"/></svg>
+      </button>
+      <button type="button" class="ctrl" id="chat-btn" aria-pressed="false" title="Chat">
+        <svg viewBox="0 0 24 24" class="icon"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2zm3 6v2h10V9zm0 4v2h7v-2z"/></svg>
+        <span class="badge" id="unread" hidden>0</span>
+      </button>
+      <button type="button" class="ctrl danger" id="leave-btn" title="Leave">
+        <svg viewBox="0 0 24 24" class="icon"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1a1 1 0 0 1-.56.9 11.5 11.5 0 0 0-2.66 1.85 1 1 0 0 1-1.41-.01L.29 13.08a1 1 0 0 1 0-1.41A16.94 16.94 0 0 1 12 7a16.94 16.94 0 0 1 11.71 4.67 1 1 0 0 1 0 1.41l-2.48 2.48a1 1 0 0 1-1.41.01 11.3 11.3 0 0 0-2.67-1.85 1 1 0 0 1-.56-.9v-3.1A15 15 0 0 0 12 9z"/></svg>
+      </button>
+    </nav>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <template id="tile-template">
+    <article class="tile">
+      <video autoplay playsinline></video>
+      <div class="placeholder">
+        <span class="avatar"></span>
+      </div>
+      <footer class="tile-label">
+        <span class="mic-off" title="Muted" hidden>
+          <svg viewBox="0 0 24 24"><path d="M19 12h-2c0 .74-.16 1.43-.43 2.06l1.5 1.5A6.9 6.9 0 0 0 19 12zm-4 .17V6a3 3 0 0 0-5.94-.6zM4.27 3 3 4.27l6 6V12a3 3 0 0 0 4.48 2.6l1.5 1.5A5 5 0 0 1 7 12H5a7 7 0 0 0 6 6.92V21h2v-2.08a6.9 6.9 0 0 0 3.32-1.33L19.73 21 21 19.73z"/></svg>
+        </span>
+        <span class="name"></span>
+        <span class="conn" hidden>connecting…</span>
+      </footer>
+    </article>
+  </template>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
